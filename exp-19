@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <unistd.h>
+
+void printOddNumbers() {
+    printf("Odd Numbers: ");
+    for (int i = 1; i <= 10; i += 2) {
+        printf("%d ", i);
+    }
+    printf("\n");
+}
+
+void printEvenNumbers() {
+    printf("Even Numbers: ");
+    for (int i = 2; i <= 10; i += 2) {
+        printf("%d ", i);
+    }
+    printf("\n");
+}
+
+void printMultiplesOf3() {
+    printf("Multiples of 3: ");
+    for (int i = 3; i <= 30; i += 3) {
+        printf("%d ", i);
+    }
+    printf("\n");
+}
+
+void printMultiplesOf5() {
+    printf("Multiples of 5: ");
+    for (int i = 5; i <= 50; i += 5) {
+        printf("%d ", i);
+    }
+    printf("\n");
+}
+
+int main() {
+    pid_t pid1, pid2, pid3, pid4;
+
+    pid1 = fork();
+
+    if (pid1 == 0) {
+        // First child process
+        printf("Process ID for Odd Numbers: %d\n", getpid());
+        printOddNumbers();
+    } else {
+        pid2 = fork();
+
+        if (pid2 == 0) {
+            // Second child process
+            printf("Process ID for Even Numbers: %d\n", getpid());
+            printEvenNumbers();
+        } else {
+            pid3 = fork();
+
+            if (pid3 == 0) {
+                // Third child process
+                printf("Process ID for Multiples of 3: %d\n", getpid());
+                printMultiplesOf3();
+            } else {
+                pid4 = fork();
+
+                if (pid4 == 0) {
+                    // Fourth child process
+                    printf("Process ID for Multiples of 5: %d\n", getpid());
+                    printMultiplesOf5();
+                }
+            }
+        }
+    }
+
+    return 0;
+}
