@@ -1,0 +1,78 @@
+#include <stdio.h>
+
+#define PROCESSES 3
+#define RESOURCES 3
+
+void checkDeadlock(int maxMatrix[PROCESSES][RESOURCES], int allocationMatrix[PROCESSES][RESOURCES], int available[RESOURCES]) {
+    int needMatrix[PROCESSES][RESOURCES];
+    int finish[PROCESSES] = {0};
+    int deadlock = 1;
+
+    // Calculate the need matrix
+    for (int i = 0; i < PROCESSES; i++) {
+        for (int j = 0; j < RESOURCES; j++) {
+            needMatrix[i][j] = maxMatrix[i][j] - allocationMatrix[i][j];
+        }
+    }
+
+    // Check for deadlock
+    for (int k = 0; k < PROCESSES; k++) {
+        for (int i = 0; i < PROCESSES; i++) {
+            if (!finish[i]) {
+                int canSatisfy = 1;
+                for (int j = 0; j < RESOURCES; j++) {
+                    if (needMatrix[i][j] > available[j]) {
+                        canSatisfy = 0;
+                        break;
+                    }
+                }
+
+                if (canSatisfy) {
+                    // Release resources
+                    for (int j = 0; j < RESOURCES; j++) {
+                        available[j] += allocationMatrix[i][j];
+                        allocationMatrix[i][j] = 0;
+                    }
+
+                    finish[i] = 1;
+                    deadlock = 0;
+                    k = -1; // Restart the loop to recheck all processes
+                }
+            }
+        }
+    }
+
+    if (deadlock) {
+        printf("The system is in a deadlock state.\n");
+
+        printf("Deadlocked processes: ");
+        for (int i = 0; i < PROCESSES; i++) {
+            if (!finish[i]) {
+                printf("P%d ", i + 1);
+            }
+        }
+        printf("\n");
+    } else {
+        printf("The system is not in a deadlock state.\n");
+    }
+}
+
+int main() {
+    int maxMatrix[PROCESSES][RESOURCES] = {
+        {3, 6, 8},
+        {4, 3, 3},
+        {3, 4, 4}
+    };
+
+    int allocationMatrix[PROCESSES][RESOURCES] = {
+        {1, 2, 0},
+        {2, 0, 3},
+        {1, 2, 1}
+    };
+
+    int available[RESOURCES] = {1, 2, 0};
+
+    checkDeadlock(maxMatrix, allocationMatrix, available);
+
+    return 0;
+}
