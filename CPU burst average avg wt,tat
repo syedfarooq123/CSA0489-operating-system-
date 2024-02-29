@@ -1,0 +1,70 @@
+#include <stdio.h>
+
+struct Process {
+    int processID;
+    int burstTime;
+    int waitingTime;
+    int turnaroundTime;
+};
+
+void swap(struct Process* a, struct Process* b) {
+    struct Process temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void sortProcesses(struct Process processes[], int numProcesses) {
+    // Sort processes based on burst time
+    for (int i = 0; i < numProcesses - 1; i++) {
+        for (int j = 0; j < numProcesses - i - 1; j++) {
+            if (processes[j].burstTime > processes[j + 1].burstTime) {
+                swap(&processes[j], &processes[j + 1]);
+            }
+        }
+    }
+}
+
+void sjfScheduling(struct Process processes[], int numProcesses) {
+    int currentTime = 0;
+
+    for (int i = 0; i < numProcesses; i++) {
+        processes[i].waitingTime = currentTime;
+        processes[i].turnaroundTime = processes[i].waitingTime + processes[i].burstTime;
+        currentTime += processes[i].burstTime;
+    }
+}
+
+int main() {
+    int numProcesses = 4;
+    struct Process processes[] = {
+        {1, 6, 0, 0},
+        {2, 8, 0, 0},
+        {3, 7, 0, 0},
+        {4, 3, 0, 0}
+    };
+
+    sortProcesses(processes, numProcesses);
+    sjfScheduling(processes, numProcesses);
+
+    // Display results
+    printf("Process\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < numProcesses; i++) {
+        printf("P%d\t%d\t\t%d\t\t%d\n", processes[i].processID, processes[i].burstTime,
+               processes[i].waitingTime, processes[i].turnaroundTime);
+    }
+
+    // Calculate and display average waiting time and average turnaround time
+    float avgWaitingTime = 0, avgTurnaroundTime = 0;
+    for (int i = 0; i < numProcesses; i++) {
+        avgWaitingTime += processes[i].waitingTime;
+        avgTurnaroundTime += processes[i].turnaroundTime;
+    }
+
+    avgWaitingTime /= numProcesses;
+    avgTurnaroundTime /= numProcesses;
+
+    printf("\nAverage Waiting Time: %.2f ms\n", avgWaitingTime);
+    printf("Average Turnaround Time: %.2f ms\n", avgTurnaroundTime);
+
+    return 0;
+}
