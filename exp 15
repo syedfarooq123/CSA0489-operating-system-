@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MEMORY_SIZE 1000
+
+typedef struct Block {
+    int size;
+    int allocated;
+} Block;
+
+Block memory[MEMORY_SIZE];
+
+void initializeMemory() {
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        memory[i].size = 0;
+        memory[i].allocated = 0;
+    }
+}
+
+void printMemory() {
+    printf("Memory Layout:\n");
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        if (memory[i].size > 0) {
+            printf("[%d] ", memory[i].size);
+            if (memory[i].allocated) {
+                printf("(Allocated) ");
+            } else {
+                printf("(Free) ");
+            }
+        }
+    }
+    printf("\n\n");
+}
+
+void worstFit(int processSize) {
+    int largestBlockSize = -1;
+    int largestBlockIndex = -1;
+
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        if (!memory[i].allocated && memory[i].size >= processSize) {
+            if (memory[i].size > largestBlockSize) {
+                largestBlockSize = memory[i].size;
+                largestBlockIndex = i;
+            }
+        }
+    }
+
+    if (largestBlockIndex != -1) {
+        memory[largestBlockIndex].allocated = 1;
+        printf("Process of size %d allocated at memory block %d\n", processSize, largestBlockIndex);
+    } else {
+        printf("Not enough memory to allocate process of size %d\n", processSize);
+    }
+}
+
+int main() {
+    initializeMemory();
+
+    // Initial free memory blocks
+    memory[0].size = 200;
+    memory[1].size = 300;
+    memory[2].size = 150;
+    memory[3].size = 100;
+
+    printMemory();
+
+    // Allocate processes using worst fit
+    worstFit(120);
+    worstFit(250);
+    worstFit(180);
+    worstFit(80);
+
+    printMemory();
+
+    return 0;
+}
