@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void sortTracks(int tracks[], int numTracks) {
+    // Sort tracks in ascending order
+    for (int i = 0; i < numTracks - 1; i++) {
+        for (int j = 0; j < numTracks - i - 1; j++) {
+            if (tracks[j] > tracks[j + 1]) {
+                int temp = tracks[j];
+                tracks[j] = tracks[j + 1];
+                tracks[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int findIndex(int tracks[], int numTracks, int head) {
+    // Find the index where the head is located or should be inserted
+    int index = 0;
+    for (int i = 0; i < numTracks; i++) {
+        if (tracks[i] < head) {
+            index++;
+        } else {
+            break;
+        }
+    }
+    return index;
+}
+
+void scan(int tracks[], int numTracks, int head) {
+    sortTracks(tracks, numTracks);
+
+    int index = findIndex(tracks, numTracks, head);
+
+    // Head movement towards higher tracks
+    printf("Head Movement: %d", head);
+    for (int i = index; i < numTracks; i++) {
+        printf(" -> %d", tracks[i]);
+    }
+
+    // Head movement towards lower tracks
+    for (int i = index - 1; i >= 0; i--) {
+        printf(" -> %d", tracks[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int numTracks = 9;
+    int tracks[] = {55, 58, 60, 70, 18, 90, 150, 160, 184};
+    int initialHead = 50; // Starting head position
+
+    printf("Initial head position: %d\n", initialHead);
+
+    scan(tracks, numTracks, initialHead);
+
+    return 0;
+}
