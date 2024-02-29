@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+#define NUM_THREADS 2
+#define COUNT_LIMIT 10
+
+int count = 1;
+pthread_mutex_t count_mutex;
+pthread_cond_t condition_var;
+
+void *print_odd(void *param) {
+    for (;;) {
+        pthread_mutex_lock(&count_mutex);
+
+        while (count % 2 == 0 || count > COUNT_LIMIT) {
+            pthread_cond_wait(&condition_var, &count_mutex);
+        }
+
+        if (count <= COUNT_LIMIT) {
+            printf("Odd Thread: %d\n", count);
+            count++;
+            pthread_cond_signal(&condition_var);
+        } else {
+            pthread_mutex_unlock(&count_mutex);
+            pthread_exit(NULL);
+        }
+
+        pthread_mutex_unlock(&count_mutex);
+    }
+}
+
+void *print_even(void *param) {
+    for (;;) {
+        pthread_mutex_lock(&count_mutex);
+
+        while (count % 2 == 1 || count > COUNT_LIMIT) {
+            pthread_cond_wait(&condition_var, &count_mutex);
+        }
+
+        if (count <= COUNT_LIMIT) {
+            printf("Even Thread: %d\n", count);
+            count++;
+            pthread_cond_signal(&condition_var);
+        } else {
+            pthread_mutex_unlock(&count_mutex);
+            pthread_exit(NULL);
+        }
+
+        pthread_mutex_unlock(&count_mutex);
+    }
+}
+
+int main() {
+    pthread_t threads[NUM_THREADS];
+    int rc;
+
+    // Initialize mutex and condition variable
+    pthread_mutex_init(&count_mutex, NULL);
+    pthread_cond_init(&condition_var, NULL);
+
+    // Create threads
+    rc = pthread_create(&threads[0], NULL, print_odd, NULL);
+    if (rc) {
+        fprintf(stderr, "Error creating odd thread\n");
+        exit(-1);
+    }
+
+    rc = pthread_create(&threads[1], NULL, print_even, NULL);
+    if (rc) {
+        fprintf(stderr, "Error creating even thread\n");
+        exit(-1);
+    }
+
+    // Join threads
+    for (int t = 0; t < NUM_THREADS; t++) {
+        pthread_join(threads[t], NULL);
+    }
+
+    // Destroy mutex and condition variable
+    pthread_mutex_destroy(&count_mutex);
+    pthread_cond_destroy(&condition_var);
+
+    return 0;
+}
