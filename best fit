@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <limits.h>
+
+#define MAX_PARTITIONS 10
+
+void displayMemoryStatus(int memoryPartitions[], int numPartitions) {
+    printf("Memory Partitions: ");
+    for (int i = 0; i < numPartitions; i++) {
+        printf("%d KB ", memoryPartitions[i]);
+    }
+    printf("\n");
+}
+
+void bestFit(int memoryPartitions[], int numPartitions, int processSizes[], int numProcesses) {
+    int allocation[MAX_PARTITIONS] = {-1}; // To store the allocation status for each process
+
+    for (int i = 0; i < numProcesses; i++) {
+        int bestFitIndex = -1;
+        int minSize = INT_MAX;
+
+        for (int j = 0; j < numPartitions; j++) {
+            if (allocation[j] == -1 && memoryPartitions[j] >= processSizes[i]) {
+                if (memoryPartitions[j] < minSize) {
+                    bestFitIndex = j;
+                    minSize = memoryPartitions[j];
+                }
+            }
+        }
+
+        if (bestFitIndex != -1) {
+            // Allocate the process to the best-fit partition
+            allocation[bestFitIndex] = i;
+
+            // Reduce the available memory in the partition
+            memoryPartitions[bestFitIndex] -= processSizes[i];
+        }
+    }
+
+    printf("Process Allocation: ");
+    for (int i = 0; i < numPartitions; i++) {
+        if (allocation[i] != -1) {
+            printf("P%d (%d KB) ", allocation[i] + 1, processSizes[allocation[i]]);
+        } else {
+            printf("Unallocated ");
+        }
+    }
+    printf("\n");
+
+    displayMemoryStatus(memoryPartitions, numPartitions);
+}
+
+int main() {
+    int memoryPartitions[] = {300, 600, 350, 200, 750, 125};
+    int numPartitions = sizeof(memoryPartitions) / sizeof(memoryPartitions[0]);
+
+    int processSizes[] = {115, 500, 358, 200, 375};
+    int numProcesses = sizeof(processSizes) / sizeof(processSizes[0]);
+
+    printf("Initial ");
+    displayMemoryStatus(memoryPartitions, numPartitions);
+
+    bestFit(memoryPartitions, numPartitions, processSizes, numProcesses);
+
+    return 0;
+}
